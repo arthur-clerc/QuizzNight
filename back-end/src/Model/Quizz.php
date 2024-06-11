@@ -1,13 +1,13 @@
 <?php
 namespace App\Model;
 
-class Quiz {
+class Quizz {
     public function getAllQuizzes() {
-        // Logique pour récupérer tous les quiz depuis la base de données
-    }
-
-    public function getQuizById($quizId) {
-        // Logique pour récupérer un quiz par son ID depuis la base de données
+        // Simulate database query
+        return [
+            ['id' => 1, 'title' => 'Quiz 1'],
+            ['id' => 2, 'title' => 'Quiz 2']
+        ];
     }
 }
 ?>

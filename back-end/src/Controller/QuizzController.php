@@ -1,15 +1,12 @@
 <?php
 namespace App\Controller;
+
 use App\Model\Quizz;
 
-class QuizzController {
-    public function handleRequest() {
-        // Logique pour gérer les requêtes
-    }
-
+class QuizController {
     public function listQuizzes() {
         $quizzModel = new Quizz();
-        $quizzes = $quizzModel->getAllQuizzes();
+        return $quizzModel->getAllQuizzes();
     }
 }
 ?>
