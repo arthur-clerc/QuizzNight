@@ -1,29 +1,11 @@
 <?php
 
-use App\Controller\QuizController;
+require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once '../vendor/autoload.php';
+// Connexion à la base de données
+$pdo = new PDO('mysql:host=localhost;dbname=QuizzNight;unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock', 'root', 'root');
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Headers pour gérer les CORS (Cross-Origin Resource Sharing)
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Content-Type: application/json");
-
-$requestMethod = $_SERVER["REQUEST_METHOD"];
-$pathInfo = isset($_SERVER['PATH_INFO']) ? explode('/', trim($_SERVER['PATH_INFO'], '/')) : [];
-
-$controller = new QuizController();
-switch ($requestMethod) {
-    case 'GET':
-        if (isset($pathInfo[0]) && $pathInfo[0] === 'quizzes') {
-            echo json_encode($controller->listQuizzes());
-        }
-        break;
-    case 'POST':
-        // Handle POST request
-        break;
-    // Handle other HTTP methods
-}
+// Inclusion des routes
+require_once __DIR__ . '/../src/routes.php';
 ?>
-
