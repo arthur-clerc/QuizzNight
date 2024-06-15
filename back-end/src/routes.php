@@ -1,7 +1,7 @@
 <?php
 
 use App\Controller\UserController;
-use App\Controller\QuizzController;
+use App\Controller\QuizController;
 
 // Fonction route générique
 function route($method, $path, $callback, $pdo) {
@@ -28,13 +28,10 @@ route('POST', '/api/login', function($matches, $pdo) {
 // Routes pour les quizzes
 route('GET', '/api/quizzes', function($matches, $pdo) {
     try {
-        $controller = new QuizzController($pdo);
-        error_log("QuizzController instantiated");
+        $controller = new QuizController($pdo);
         $quizzes = $controller->getAllQuizzes();
-        error_log("getAllQuizzes called");
         echo json_encode($quizzes);
     } catch (Exception $e) {
-        error_log("Error in route: " . $e->getMessage());
         http_response_code(500);
         echo json_encode(['error' => 'Internal Server Error']);
     }
@@ -42,24 +39,25 @@ route('GET', '/api/quizzes', function($matches, $pdo) {
 
 route('GET', '/api/quiz/(\d+)', function($matches, $pdo) {
     $quizId = $matches[1];
-    $controller = new QuizzController($pdo);
+    $controller = new QuizController($pdo);
     $quiz = $controller->getQuizzById($quizId);
     if ($quiz) {
         echo json_encode($quiz);
     } else {
         http_response_code(404);
+        echo json_encode(['error' => 'Quiz not found']);
     }
 }, $pdo);
 
 route('POST', '/api/quiz', function($matches, $pdo) {
-    $controller = new QuizzController($pdo);
+    $controller = new QuizController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
     $controller->createQuizz($data['title'], $data['user_id']);
 }, $pdo);
 
 route('PUT', '/api/quiz/(\d+)', function($matches, $pdo) {
     $quizId = $matches[1];
-    $controller = new QuizzController($pdo);
+    $controller = new QuizController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
     $controller->updateQuizz($quizId, $data['title']);
 }, $pdo);

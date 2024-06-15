@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-class Quizz
+class Quiz
 {
     private $id;
     private $title;
