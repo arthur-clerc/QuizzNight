@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use PDO;
+use Exception;
 use App\Model\Quiz;
 
 class QuizController
@@ -16,36 +17,28 @@ class QuizController
 
     public function getAllQuizzes()
     {
-        $sql ="
-            SELECT 
-            q.id AS quizz_id, 
-            q.title AS quizz_title,
-            qu.id AS question_id, 
-            qu.question_text,
-            a.id AS answer_id, 
-            a.answer_text, 
-            a.is_correct
-            FROM quizz q
-            LEFT JOIN question qu ON q.id = qu.quizz_id
-            LEFT JOIN answer a ON qu.id = a.question_id
-        ";
+        $sql = "SELECT q.id, q.title, qu.id as question_id, qu.question_text, a.id as answer_id, a.answer_text, a.is_correct
+                FROM quizz q
+                LEFT JOIN question qu ON q.id = qu.quizz_id
+                LEFT JOIN answer a ON qu.id = a.question_id";
         $stmt = $this->pdo->query($sql);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         $quizzes = [];
-        foreach ($results as $row) {
-            $quizId = $row['quizz_id'];
+        
+        foreach ($data as $row) {
+            $quizId = $row['id'];
             $questionId = $row['question_id'];
             $answerId = $row['answer_id'];
-    
+            
             if (!isset($quizzes[$quizId])) {
                 $quizzes[$quizId] = [
                     'id' => $quizId,
-                    'title' => $row['quizz_title'],
+                    'title' => $row['title'],
                     'questions' => []
                 ];
             }
-    
+            
             if ($questionId) {
                 if (!isset($quizzes[$quizId]['questions'][$questionId])) {
                     $quizzes[$quizId]['questions'][$questionId] = [
@@ -54,7 +47,7 @@ class QuizController
                         'answers' => []
                     ];
                 }
-    
+                
                 if ($answerId) {
                     $quizzes[$quizId]['questions'][$questionId]['answers'][$answerId] = [
                         'id' => $answerId,
@@ -64,11 +57,9 @@ class QuizController
                 }
             }
         }
-    
-        // Convertir en JSON
-        $quizzes = json_encode(array_values($quizzes));
-        return $quizzes;
-    }    
+
+        return array_values($quizzes);
+    }  
 
     public function getQuizzById($id)
     {
@@ -79,11 +70,32 @@ class QuizController
         return $quiz;
     }
 
-    public function createQuizz($title, $userId)
+    public function createQuizz($title, $userId, $questions)
     {
-        $sql = "INSERT INTO quizz (title, user_id) VALUES (?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$title, $userId]);
+        try {
+            $this->pdo->beginTransaction();
+            $sql = "INSERT INTO quizz (title, user_id) VALUES (?, ?)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$title, $userId]);
+            $quizId = $this->pdo->lastInsertId();
+
+            foreach ($questions as $question) {
+                $sql = "INSERT INTO question (quizz_id, question_text) VALUES (?, ?)";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$quizId, $question['question_text']]);
+                $questionId = $this->pdo->lastInsertId();
+
+                foreach ($question['answers'] as $answer) {
+                    $sql = "INSERT INTO answer (question_id, answer_text, is_correct) VALUES (?, ?, ?)";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute([$questionId, $answer['answer_text'], $answer['is_correct']]);
+                }
+            }
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
     public function updateQuizz($id, $title)

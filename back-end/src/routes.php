@@ -16,13 +16,30 @@ function route($method, $path, $callback, $pdo) {
 route('POST', '/api/register', function($matches, $pdo) {
     $controller = new UserController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
+    if (!isset($data['name'], $data['email'], $data['password'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid input']);
+        exit;
+    }
     $controller->registerUser($data['name'], $data['email'], $data['password']);
+    echo json_encode(['success' => 'User registered successfully']);
 }, $pdo);
 
 route('POST', '/api/login', function($matches, $pdo) {
     $controller = new UserController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
-    $controller->loginUser($data['email'], $data['password']);
+    if (!isset($data['email'], $data['password'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid input']);
+        exit;
+    }
+    $user = $controller->loginUser($data['email'], $data['password']);
+    if ($user) {
+        echo json_encode(['success' => 'Login successful', 'user' => $user]);
+    } else {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid credentials']);
+    }
 }, $pdo);
 
 // Routes pour les quizzes
@@ -31,6 +48,10 @@ route('GET', '/api/quizzes', function($matches, $pdo) {
         $controller = new QuizController($pdo);
         $quizzes = $controller->getAllQuizzes();
         echo json_encode($quizzes);
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: http://localhost:8888');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Internal Server Error']);
@@ -52,7 +73,7 @@ route('GET', '/api/quiz/(\d+)', function($matches, $pdo) {
 route('POST', '/api/quiz', function($matches, $pdo) {
     $controller = new QuizController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
-    $controller->createQuizz($data['title'], $data['user_id']);
+    $controller->createQuizz($data['title'], $data['user_id'], $data['questions']);
 }, $pdo);
 
 route('PUT', '/api/quiz/(\d+)', function($matches, $pdo) {

@@ -8,7 +8,7 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connexion réussie à la base de données!<br>";
+    // echo "Connexion réussie à la base de données!<br>";
 } catch (PDOException $e) {
     die('Échec de la connexion : ' . $e->getMessage());
 }
