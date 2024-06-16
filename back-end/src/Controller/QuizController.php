@@ -5,6 +5,8 @@ namespace App\Controller;
 use PDO;
 use Exception;
 use App\Model\Quiz;
+use App\Model\Question;
+use App\Model\Answer;
 
 class QuizController
 {
@@ -17,7 +19,7 @@ class QuizController
 
     public function getAllQuizzes()
     {
-        $sql = "SELECT q.id, q.title, qu.id as question_id, qu.question_text, a.id as answer_id, a.answer_text, a.is_correct
+        $sql = "SELECT q.id AS quiz_id, q.title, qu.id AS question_id, qu.question_text, a.id AS answer_id, a.answer_text, a.is_correct
                 FROM quizz q
                 LEFT JOIN question qu ON q.id = qu.quizz_id
                 LEFT JOIN answer a ON qu.id = a.question_id";
@@ -25,12 +27,12 @@ class QuizController
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $quizzes = [];
-        
+
         foreach ($data as $row) {
-            $quizId = $row['id'];
+            $quizId = $row['quiz_id'];
             $questionId = $row['question_id'];
             $answerId = $row['answer_id'];
-            
+
             if (!isset($quizzes[$quizId])) {
                 $quizzes[$quizId] = [
                     'id' => $quizId,
@@ -38,35 +40,84 @@ class QuizController
                     'questions' => []
                 ];
             }
-            
+
+            $quiz = &$quizzes[$quizId];
+
             if ($questionId) {
-                if (!isset($quizzes[$quizId]['questions'][$questionId])) {
-                    $quizzes[$quizId]['questions'][$questionId] = [
+                if (!isset($quiz['questions'][$questionId])) {
+                    $quiz['questions'][$questionId] = [
                         'id' => $questionId,
                         'question_text' => $row['question_text'],
                         'answers' => []
                     ];
                 }
-                
+
+                $question = &$quiz['questions'][$questionId];
+
                 if ($answerId) {
-                    $quizzes[$quizId]['questions'][$questionId]['answers'][$answerId] = [
+                    $question['answers'][] = [
                         'id' => $answerId,
                         'answer_text' => $row['answer_text'],
-                        'is_correct' => $row['is_correct']
+                        'is_correct' => $row['is_correct'] == 1 // Conversion en booléen
                     ];
                 }
             }
         }
 
+        // Convertir les tableaux en objets Quiz, Question et Answer
+        foreach ($quizzes as &$quiz) {
+            $quizObj = new Quiz($quiz['id'], $quiz['title'], null);
+            foreach ($quiz['questions'] as $question) {
+                $questionObj = new Question($question['id'], $quizObj->getId(), $question['question_text']);
+                foreach ($question['answers'] as $answer) {
+                    $answerObj = new Answer($answer['id'], $questionObj->getId(), $answer['answer_text'], $answer['is_correct']);
+                    $questionObj->addAnswer($answerObj);
+                }
+                $quizObj->addQuestion($questionObj);
+            }
+            $quiz = $quizObj;
+        }
+
         return array_values($quizzes);
-    }  
+    }
 
     public function getQuizzById($id)
     {
-        $sql = "SELECT * FROM quizz WHERE id = ?";
+        $sql = "SELECT q.id AS quiz_id, q.title, qu.id AS question_id, qu.question_text, a.id AS answer_id, a.answer_text, a.is_correct
+                FROM quizz q
+                LEFT JOIN question qu ON q.id = qu.quizz_id
+                LEFT JOIN answer a ON qu.id = a.question_id
+                WHERE q.id = ?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
-        $quiz = json_encode($stmt->fetch(PDO::FETCH_ASSOC));
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $quiz = null;
+
+        foreach ($data as $row) {
+            $quizId = $row['quiz_id'];
+            $questionId = $row['question_id'];
+            $answerId = $row['answer_id'];
+
+            if (!$quiz) {
+                $quiz = new Quiz($quizId, $row['title'], null);
+            }
+
+            if ($questionId) {
+                if (!isset($quiz->getQuestions()[$questionId])) {
+                    $question = new Question($questionId, $quizId, $row['question_text']);
+                    $quiz->addQuestion($question);
+                } else {
+                    $question = $quiz->getQuestions()[$questionId];
+                }
+
+                if ($answerId) {
+                    $answer = new Answer($answerId, $questionId, $row['answer_text'], $row['is_correct'] == 1); // Conversion en booléen
+                    $question->addAnswer($answer);
+                }
+            }
+        }
+
         return $quiz;
     }
 

@@ -4,31 +4,38 @@ namespace App\Model;
 
 class Question
 {
-    private $id;
-    private $quizzId;
-    private $questionText;
-
-    public function __construct($id, $quizzId, $questionText)
-    {
-        $this->id = $id;
-        $this->quizzId = $quizzId;
-        $this->questionText = $questionText;
-    }
+    public function __construct(
+        public int $id,
+        public int $quizId,
+        public string $questionText,
+        public array $answers = []
+    ) {}
 
     // Getters
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getQuizzId()
+    public function getQuizId(): int
     {
-        return $this->quizzId;
+        return $this->quizId;
     }
 
-    public function getQuestionText()
+    public function getQuestionText(): string
     {
         return $this->questionText;
+    }
+
+    public function getAnswers(): array
+    {
+        return $this->answers;
+    }
+
+    // Method to add an answer
+    public function addAnswer(Answer $answer): void
+    {
+        $this->answers[$answer->getId()] = $answer;
     }
 }
 ?>

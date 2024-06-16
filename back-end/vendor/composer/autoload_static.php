@@ -33,6 +33,7 @@ class ComposerStaticIniteaac7cf5166872d1b39f2ccf4e654807
         ),
         'A' => 
         array (
+            'App\\Model\\' => 10,
             'App\\' => 4,
         ),
     );
@@ -61,6 +62,10 @@ class ComposerStaticIniteaac7cf5166872d1b39f2ccf4e654807
         'Dotenv\\' => 
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
+        ),
+        'App\\Model\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Model',
         ),
         'App\\' => 
         array (

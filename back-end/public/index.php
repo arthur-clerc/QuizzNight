@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=QuizzNight;unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock', 'root', 'root', [
+    $pdo = new PDO('mysql:host=localhost;dbname=QuizzNight;unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock', 'root', '', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
