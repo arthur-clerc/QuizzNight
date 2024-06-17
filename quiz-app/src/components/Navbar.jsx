@@ -16,7 +16,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="#" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/quizzes" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
           Les Quizz
         </a>
       </Typography>
@@ -26,7 +26,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="#" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/addquizz" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
           Créer un Quizz
         </a>
       </Typography>
@@ -36,7 +36,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="#" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/login" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
           Connexion
         </a>
       </Typography>
@@ -46,7 +46,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="#" className="flex items-center text-gray-800 hover:text-red-500 transition-colors">
+        <a href="/register" className="flex items-center text-gray-800 hover:text-red-500 transition-colors">
           Inscription
         </a>
       </Typography>
@@ -56,28 +56,25 @@ function NavList() {
 
 export function NavbarSimple() {
   const [openNav, setOpenNav] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 960);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 960px)");
-    setIsLargeScreen(mediaQuery.matches);
-
-    const handleMediaQueryChange = (event) => {
-      setIsLargeScreen(event.matches);
-      if (event.matches) {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 960);
+      if (window.innerWidth >= 960) {
         setOpenNav(false);
       }
     };
 
-    mediaQuery.addEventListener("change", handleMediaQueryChange);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   return (
-    <Navbar className="w-full px-6 py-3">
+    <Navbar className="w-full px-6 py-3" role="navigation" aria-label="main navigation">
       <div className="flex items-center justify-between text-gray-900">
         <Typography
           as="a"
@@ -95,6 +92,7 @@ export function NavbarSimple() {
           className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
           ripple={false}
           onClick={() => setOpenNav(!openNav)}
+          aria-label="Toggle navigation"
         >
           {openNav ? (
             <XMarkIcon className="h-6 w-6" strokeWidth={2} />
@@ -103,7 +101,7 @@ export function NavbarSimple() {
           )}
         </IconButton>
       </div>
-      <Collapse open={openNav && !isLargeScreen}>
+      <Collapse open={openNav}>
         <div className="lg:hidden">
           <NavList />
         </div>

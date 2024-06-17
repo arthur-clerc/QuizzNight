@@ -38,8 +38,9 @@ route('POST', '/api/login', function($matches, $pdo) {
         exit;
     }
     $user = $controller->loginUser($data['email'], $data['password']);
+
     if ($user) {
-        echo json_encode(['success' => 'Login successful', 'user' => $user]);
+        echo json_encode(['success' => 'Login successful', $user]);
     } else {
         http_response_code(401);
         echo json_encode(['error' => 'Invalid credentials']);

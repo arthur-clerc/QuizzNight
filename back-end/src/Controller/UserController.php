@@ -31,6 +31,7 @@ class UserController
         $stmt->execute([$email]);
         
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        print_r("test");
         
         if ($user && password_verify($password, $user['password'])) {
             return new User($user['id'], $user['name'], $user['email'], $user['password']);

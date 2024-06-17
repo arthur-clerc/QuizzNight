@@ -23,7 +23,7 @@ function Login() {
     try {
       console.log(formData);
       const response = await axios.post('http://localhost:8000/api/login', formData);
-      console.log(JSON.stringify(response.data.user));
+      console.log(response.data);
       // Rediriger vers la page de connexion en cas de succès
       navigate('/quizzes');
     } catch (error) {
