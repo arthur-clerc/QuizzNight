@@ -16,7 +16,17 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="/quizzes" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/accueil" className="flex items-center text-gray-800 hover:text-white transition-colors">
+          Accueil
+        </a>
+      </Typography>
+      <Typography
+        as="li"
+        variant="small"
+        color="blue-gray"
+        className="p-1 font-medium"
+      >
+        <a href="/quizzes" className="flex items-center text-gray-800 hover:text-white transition-colors">
           Les Quizz
         </a>
       </Typography>
@@ -26,7 +36,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="/addquizz" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/addquizz" className="flex items-center text-gray-800 hover:text-white transition-colors">
           Créer un Quizz
         </a>
       </Typography>
@@ -36,7 +46,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="/login" className="flex items-center text-gray-800 hover:text-blue-500 transition-colors">
+        <a href="/login" className="flex items-center text-gray-800 hover:text-white transition-colors">
           Connexion
         </a>
       </Typography>
@@ -46,7 +56,7 @@ function NavList() {
         color="blue-gray"
         className="p-1 font-medium"
       >
-        <a href="/register" className="flex items-center text-gray-800 hover:text-red-500 transition-colors">
+        <a href="/register" className="flex items-center text-gray-800 hover:text-white transition-colors">
           Inscription
         </a>
       </Typography>
@@ -74,38 +84,38 @@ export function NavbarSimple() {
   }, []);
 
   return (
-    <Navbar className="w-full px-6 py-3" role="navigation" aria-label="main navigation">
-      <div className="flex items-center justify-between text-gray-900">
-        <Typography
-          as="a"
-          href="#"
-          variant="h6"
-          className="mr-4 cursor-pointer py-1.5"
-        >
-          QuizzNight
-        </Typography>
-        <div className="hidden lg:block">
-          <NavList />
-        </div>
-        <IconButton
-          variant="text"
-          className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-          ripple={false}
-          onClick={() => setOpenNav(!openNav)}
-          aria-label="Toggle navigation"
-        >
-          {openNav ? (
-            <XMarkIcon className="h-6 w-6" strokeWidth={2} />
-          ) : (
-            <Bars3Icon className="h-6 w-6" strokeWidth={2} />
-          )}
-        </IconButton>
-      </div>
-      <Collapse open={openNav}>
-        <div className="lg:hidden">
-          <NavList />
-        </div>
-      </Collapse>
-    </Navbar>
+    <Navbar className="w-full px-6 py-3 bg-indigo-custom" role="navigation" aria-label="main navigation">
+  <div className="flex items-center justify-between text-gray-900">
+    <Typography
+      as="a"
+      href="#"
+      variant="h6"
+      className="mr-4 cursor-pointer py-1.5"
+    >
+      QuizzNight
+    </Typography>
+    <div className="hidden lg:block">
+      <NavList />
+    </div>
+    <IconButton
+      variant="text"
+      className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
+      ripple={false}
+      onClick={() => setOpenNav(!openNav)}
+      aria-label="Toggle navigation"
+    >
+      {openNav ? (
+        <XMarkIcon className="h-6 w-6" strokeWidth={2} />
+      ) : (
+        <Bars3Icon className="h-6 w-6" strokeWidth={2} />
+      )}
+    </IconButton>
+  </div>
+  <Collapse open={openNav}>
+    <div className="lg:hidden">
+      <NavList />
+    </div>
+  </Collapse>
+</Navbar>
   );
 }
