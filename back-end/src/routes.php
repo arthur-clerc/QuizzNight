@@ -32,15 +32,17 @@ route('POST', '/api/register', function($matches, $pdo) {
 route('POST', '/api/login', function($matches, $pdo) {
     $controller = new UserController($pdo);
     $data = json_decode(file_get_contents('php://input'), true);
+    
     if (!isset($data['email'], $data['password'])) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid input']);
         exit;
     }
+    
     $user = $controller->loginUser($data['email'], $data['password']);
-
+    
     if ($user) {
-        echo json_encode(['success' => 'Login successful', $user]);
+        echo json_encode(['success' => 'Login successful', 'user' => $user->toArray()]);
     } else {
         http_response_code(401);
         echo json_encode(['error' => 'Invalid credentials']);
@@ -52,16 +54,17 @@ route('GET', '/api/quizzes', function($matches, $pdo) {
     try {
         $controller = new QuizController($pdo);
         $quizzes = $controller->getAllQuizzes();
-        echo json_encode($quizzes);
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: http://localhost:5173');
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        echo json_encode($quizzes);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Internal Server Error']);
     }
 }, $pdo);
+
 
 route('GET', '/api/quiz/(\d+)', function($matches, $pdo) {
     $quizId = $matches[1];

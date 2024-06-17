@@ -18,68 +18,69 @@ class QuizController
     }
 
     public function getAllQuizzes()
-    {
-        $sql = "SELECT q.id AS quiz_id, q.title, qu.id AS question_id, qu.question_text, a.id AS answer_id, a.answer_text, a.is_correct
-                FROM quizz q
-                LEFT JOIN question qu ON q.id = qu.quizz_id
-                LEFT JOIN answer a ON qu.id = a.question_id";
-        $stmt = $this->pdo->query($sql);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+{
+    $sql = "SELECT q.id AS quiz_id, q.title, qu.id AS question_id, qu.question_text, a.id AS answer_id, a.answer_text, a.is_correct
+            FROM quizz q
+            LEFT JOIN question qu ON q.id = qu.quizz_id
+            LEFT JOIN answer a ON qu.id = a.question_id";
+    $stmt = $this->pdo->query($sql);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $quizzes = [];
+    $quizzes = [];
 
-        foreach ($data as $row) {
-            $quizId = $row['quiz_id'];
-            $questionId = $row['question_id'];
-            $answerId = $row['answer_id'];
+    foreach ($data as $row) {
+        $quizId = $row['quiz_id'];
+        $questionId = $row['question_id'];
+        $answerId = $row['answer_id'];
 
-            if (!isset($quizzes[$quizId])) {
-                $quizzes[$quizId] = [
-                    'id' => $quizId,
-                    'title' => $row['title'],
-                    'questions' => []
+        if (!isset($quizzes[$quizId])) {
+            $quizzes[$quizId] = [
+                'id' => $quizId,
+                'title' => $row['title'],
+                'questions' => []
+            ];
+        }
+
+        $quiz = &$quizzes[$quizId];
+
+        if ($questionId) {
+            if (!isset($quiz['questions'][$questionId])) {
+                $quiz['questions'][$questionId] = [
+                    'id' => $questionId,
+                    'question_text' => $row['question_text'],
+                    'answers' => []
                 ];
             }
 
-            $quiz = &$quizzes[$quizId];
+            $question = &$quiz['questions'][$questionId];
 
-            if ($questionId) {
-                if (!isset($quiz['questions'][$questionId])) {
-                    $quiz['questions'][$questionId] = [
-                        'id' => $questionId,
-                        'question_text' => $row['question_text'],
-                        'answers' => []
-                    ];
-                }
-
-                $question = &$quiz['questions'][$questionId];
-
-                if ($answerId) {
-                    $question['answers'][] = [
-                        'id' => $answerId,
-                        'answer_text' => $row['answer_text'],
-                        'is_correct' => $row['is_correct'] == 1 // Conversion en booléen
-                    ];
-                }
+            if ($answerId) {
+                $question['answers'][] = [
+                    'id' => $answerId,
+                    'answer_text' => $row['answer_text'],
+                    'is_correct' => $row['is_correct'] == 1 // Conversion en booléen
+                ];
             }
         }
-
-        // Convertir les tableaux en objets Quiz, Question et Answer
-        foreach ($quizzes as &$quiz) {
-            $quizObj = new Quiz($quiz['id'], $quiz['title'], null);
-            foreach ($quiz['questions'] as $question) {
-                $questionObj = new Question($question['id'], $quizObj->getId(), $question['question_text']);
-                foreach ($question['answers'] as $answer) {
-                    $answerObj = new Answer($answer['id'], $questionObj->getId(), $answer['answer_text'], $answer['is_correct']);
-                    $questionObj->addAnswer($answerObj);
-                }
-                $quizObj->addQuestion($questionObj);
-            }
-            $quiz = $quizObj;
-        }
-
-        return array_values($quizzes);
     }
+
+    // Convertir les tableaux en objets Quiz, Question et Answer
+    foreach ($quizzes as &$quiz) {
+        $quizObj = new Quiz($quiz['id'], $quiz['title'], null);
+        foreach ($quiz['questions'] as $question) {
+            $questionObj = new Question($question['id'], $quizObj->getId(), $question['question_text']);
+            foreach ($question['answers'] as $answer) {
+                $answerObj = new Answer($answer['id'], $questionObj->getId(), $answer['answer_text'], $answer['is_correct']);
+                $questionObj->addAnswer($answerObj);
+            }
+            $quizObj->addQuestion($questionObj);
+        }
+        $quiz = $quizObj;
+    }
+
+    return array_values($quizzes);
+}
+
 
     public function getQuizzById($id)
     {

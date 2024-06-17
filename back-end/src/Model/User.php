@@ -37,5 +37,13 @@ class User
     {
         return $this->password;
     }
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            // Vous pouvez exclure le mot de passe ici si nécessaire
+        ];
+    }
 }
 ?>
